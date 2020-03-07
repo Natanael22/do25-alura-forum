@@ -1,0 +1,11 @@
+- hosts: all
+  tasks:
+  - name: Update apt
+    become: yes
+    apt:
+      update_cache: yes
+  - name: Install MySQL
+    become: yes
+    apt:
+      name: mysql-server
+      state: present
