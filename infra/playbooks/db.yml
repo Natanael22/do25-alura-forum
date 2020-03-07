@@ -1,4 +1,6 @@
 - hosts: all
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
   - name: Update apt
     become: yes
@@ -9,3 +11,16 @@
     apt:
       name: mysql-server
       state: present
+  - name: Copy file with owner and permissions
+    become: yes
+    copy:
+      src: ../db/mysqld.cnf
+      dest: /etc/mysql/mysql.conf.d/
+      owner: root
+      group: root
+  - name: Restart mysql
+    become: yes
+    service:
+      name: mysql
+      state: restarted
+    
