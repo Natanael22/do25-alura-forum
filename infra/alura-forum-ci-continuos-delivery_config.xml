@@ -1,0 +1,46 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.36">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.5.1"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.5.1">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.80">
+    <script>pipeline {
+   agent any
+
+   stages {
+      stage(&apos;Build &amp; Test&apos;) {
+         steps {
+            git &apos;git@github.com:Natanael22/do25-alura-forum.git&apos;
+
+            sh &quot;mvn clean package&quot;
+            
+            sh &apos;chmod 400 infra/ssh-keys/id_rsa&apos;
+            
+            sh &apos;scp -o StrictHostKeyChecking=no -i infra/ssh-keys/id_rsa target/alura-forum-0.0.1-SNAPSHOT.war vagrant@192.168.50.12:/home/vagrant/alura-forum.war&apos;
+            
+            sh &quot;ssh -o StrictHostKeyChecking=no -i infra/ssh-keys/id_rsa vagrant@192.168.50.12 &apos;sudo mv /home/vagrant/alura-forum.war /var/lib/tomcat8/webapps/alura-forum.war&apos;&quot;
+         }
+      }
+   }
+   
+    post {
+        success {
+            archiveArtifacts &apos;target/*.war&apos;
+        }
+    }
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
